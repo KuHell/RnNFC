@@ -1,48 +1,85 @@
-import React, {useState} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import NfcManager, {NfcTech} from 'react-native-nfc-manager';
+/**
+ * Sample React Native App
+ * https://github.com/facebook/react-native
+ *
+ * @format
+ * @flow strict-local
+ */
 
-// Pre-step, call this before any NFC operations
-NfcManager.start();
+import React from 'react';
+import type {Node} from 'react';
+import {
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  useColorScheme,
+  View,
+} from 'react-native';
+import {
+  Alert,
+  Button,
+  Dimensions,
+  // StyleSheet,
+  Vibration,
+  // View,
+} from 'react-native';
+import {
+  Colors,
+  DebugInstructions,
+  Header,
+  LearnMoreLinks,
+  ReloadInstructions,
+} from 'react-native/Libraries/NewAppScreen';
+import QRCodeScanner from './QRCodeScanner';
+import {Camera, CameraType} from 'react-native-camera-kit';
+import {useEffect, useRef, useState} from 'react';
 
-function App() {
-  const [count, setCount] = useState(1);
-  async function readNdef() {
-    try {
-      await NfcManager.requestTechnology(NfcTech.Ndef);
-      const tag = await NfcManager.getTag();
-      setCount(count + 1);
-      console.warn('Tag found', tag);
-    } catch (ex) {
-      console.warn('Oops!', ex);
-    } finally {
-      NfcManager.cancelTechnologyRequest();
-    }
-  }
+const App: () => Node = () => {
+  const [scaned, setScaned] = useState(true);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    // 종료후 재시작을 했을때 초기화
+    setScaned(true);
+  }, []);
+
+  const onBarCodeRead = (event: any) => {
+    if (!scaned) return;
+    setScaned(false);
+    Vibration.vibrate();
+    Alert.alert('QR Code', event.nativeEvent.codeStringValue, [
+      {text: 'OK', onPress: () => setScaned(true)},
+    ]);
+  };
 
   return (
-    <View style={styles.wrapper}>
-      <TouchableOpacity onPress={readNdef}>
-        <Text style={styles.tit}>터치 후 스캔</Text>
-      </TouchableOpacity>
-      <Text style={styles.count}>{count}</Text>
+    <View>
+      <Camera
+        style={styles.scanner}
+        ref={ref}
+        cameraType={CameraType.Back} // Front/Back(default)
+        zoomMode
+        focusMode
+        // Barcode Scanner Props
+        scanBarcode
+        showFrame={false}
+        laserColor="rgba(0, 0, 0, 0)"
+        frameColor="rgba(0, 0, 0, 0)"
+        surfaceColor="rgba(0, 0, 0, 0)"
+        onReadCode={onBarCodeRead}
+      />
     </View>
   );
-}
-
+};
 const styles = StyleSheet.create({
-  wrapper: {
+  container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
   },
-  tit: {
-    marginBottom: 20,
-    fontSize: 40,
-  },
-  count: {
-    fontSize: 40,
-  },
+  scanner: {flex: 1},
 });
 
 export default App;

@@ -12,7 +12,9 @@
   "dependencies": {
     "react": "18.0.0",
     "react-native": "0.69.4",
-    "react-native-nfc-manager": "^3.13.5"
+    "react-native-camera-kit": "^13.0.0",
+    "react-native-nfc-manager": "^3.13.5",
+    "yet": "^0.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
